@@ -1,0 +1,110 @@
+:root{--naranja:#D4521A;--naranja-osc:#B2410F;--negro:#1A1410;--gris:#3D342C;--gris-medio:#5E5044;--linea:#D8CCBB;--crema:#F5F0E8;--crema-osc:#EDE5D8}
+@page{size:170mm 240mm}
+*{box-sizing:border-box}
+html,body{margin:0;background:#fff}
+body{font-family:'Libre Baskerville',Georgia,serif;font-size:9.6pt;line-height:1.62;color:var(--negro);-webkit-print-color-adjust:exact;print-color-adjust:exact}
+a{color:var(--naranja-osc);text-decoration:none;word-break:break-word}
+
+/* Portada 20 aniversario (a sangre), en la línea del dossier de la 1ª Muestra */
+.portada{position:relative;width:170mm;height:240mm;margin:-18mm -16mm 0;break-after:page;overflow:hidden;background:#120E0B url("data:image/jpeg;base64,__FONDO__") center/cover no-repeat;color:#F3E9D6;text-align:center}
+.pt-grano{display:none;position:absolute;inset:0;opacity:.55;mix-blend-mode:multiply;
+  background:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .45 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
+  radial-gradient(ellipse at 50% 40%,rgba(255,255,255,0),rgba(40,20,60,.35) 85%)}
+.pt-top{position:relative;padding-top:15mm}
+.pt-libro{font-family:'Libre Baskerville',serif;font-size:15pt;color:#F3E9D6;letter-spacing:.02em}
+.pt-nombre{font-family:'Libre Baskerville',serif;font-weight:700;font-size:31pt;line-height:1.02;color:#F3E9D6;margin:1mm 10mm 0;letter-spacing:-.01em}
+.pt-etiqueta{display:inline-block;margin-top:4mm;background:#D4521A;color:#FDFAF5;font-family:'DM Mono',monospace;font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;padding:2mm 4mm}
+.pt-claqueta{position:relative;margin:7mm 7mm 0;height:11mm;background:#3A2A1E;border-radius:.6mm;
+  background-image:repeating-linear-gradient(-60deg,#3A2A1E 0 4mm,#E2A33A 4mm 8.2mm);background-size:110mm 7mm;background-position:center;background-repeat:no-repeat;box-shadow:inset 0 0 0 1.6mm #3A2A1E}
+.pt-escena{position:relative;height:118mm;margin-top:2mm}
+.pt-rayos{position:absolute;left:50%;top:36%;width:240mm;height:240mm;margin:-120mm 0 0 -120mm;
+  background:repeating-conic-gradient(from 7deg,rgba(241,230,208,.92) 0 9deg,transparent 9deg 30deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 36mm,#000 36.5mm 64mm,transparent 64.5mm);mask:radial-gradient(circle,transparent 0 36mm,#000 36.5mm 64mm,transparent 64.5mm)}
+/* La lata de película con su etiqueta */
+.pt-lata{position:absolute;left:50%;top:36%;width:80mm;height:80mm;margin:-40mm 0 0 -40mm;border-radius:50%;
+  background:conic-gradient(from 20deg,#7d766d,#d9d3c9 12%,#8a837a 24%,#c3bcb1 38%,#6f6860 52%,#d4cdc2 66%,#857e75 80%,#cfc8bd 92%,#7d766d);
+  box-shadow:0 2.5mm 6mm rgba(0,0,0,.6),0 0 0 1.2mm #3b3530,0 0 0 1.6mm #8f877c,0 0 10mm rgba(226,105,43,.45)}
+.pt-lata-cara{position:absolute;inset:3.2mm;border-radius:50%;
+  background:repeating-radial-gradient(circle,rgba(255,255,255,0) 0 2.6mm,rgba(255,255,255,.18) 2.6mm 2.9mm,rgba(0,0,0,.14) 2.9mm 3.3mm),
+  conic-gradient(from 200deg,#8f887f,#e3ded6 14%,#958e84 28%,#cbc4b9 44%,#7a736b 58%,#ddd7cd 72%,#8d867c 86%,#8f887f);
+  box-shadow:inset 0 0 0 .8mm rgba(0,0,0,.35),inset 0 0 0 2.2mm rgba(255,255,255,.25),inset 0 1.5mm 3mm rgba(0,0,0,.35)}
+.pt-etq{position:absolute;left:50%;top:50%;width:54mm;height:42mm;margin:-21mm 0 0 -27mm;transform:rotate(-4deg);
+  background:#F1E6CF;color:#1A1410;border-radius:.6mm;padding:2.6mm 3.4mm;display:flex;flex-direction:column;justify-content:space-between;
+  box-shadow:0 .8mm 2mm rgba(0,0,0,.45),inset 0 0 6mm rgba(170,130,70,.25);
+  background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .4 0 0 0 0 .3 0 0 0 0 .15 0 0 0 .18 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.pt-etq::before,.pt-etq::after{content:"";position:absolute;top:-1.6mm;width:14mm;height:5mm;background:rgba(236,224,196,.85);box-shadow:0 .3mm .8mm rgba(0,0,0,.2)}
+.pt-etq::before{left:-4mm;transform:rotate(-38deg)}
+.pt-etq::after{right:-4mm;transform:rotate(36deg)}
+.pt-etq-top,.pt-etq-bot{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:6.2pt;letter-spacing:.12em;text-transform:uppercase;border-bottom:.25mm solid #1A1410;padding-bottom:1mm}
+.pt-etq-bot{border-bottom:0;border-top:.25mm solid #1A1410;padding:1mm 0 0}
+.pt-etq-num{display:flex;align-items:center;justify-content:center;gap:2mm}
+.pt-etq-num b{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:96pt;line-height:.82;color:#D4521A;letter-spacing:-.01em}
+.pt-etq-num i{font-style:normal;font-family:'Bebas Neue',sans-serif;font-size:20pt;line-height:.9;writing-mode:vertical-rl;transform:rotate(180deg);color:#1A1410}
+.pt-sam{position:absolute;bottom:10mm;height:74mm;width:auto;filter:drop-shadow(0 0 .7mm rgba(243,233,214,.95)) drop-shadow(0 0 2.5mm rgba(243,233,214,.55))}
+.pt-sam-l{left:7mm}
+.pt-sam-r{right:6mm}
+.pt-jp{position:absolute;top:6mm;writing-mode:vertical-rl;font-family:'Noto Sans JP',sans-serif;font-weight:900;font-size:17pt;letter-spacing:.06em;color:#F08A4B}
+.pt-jp-l{left:4.5mm}
+.pt-jp-r{right:4.5mm}
+.pt-anios{position:absolute;left:0;right:0;bottom:0;font-family:'Bebas Neue',sans-serif;font-size:17pt;line-height:1;color:#F3E9D6;text-shadow:0 0 2mm #000;letter-spacing:.02em}
+.pt-anios b{display:none}
+.pt-fechas{position:relative;margin-top:6mm;font-family:'Bebas Neue',sans-serif;font-size:44pt;line-height:1;color:#F08A4B;display:flex;align-items:center;justify-content:center;gap:5mm;letter-spacing:.03em}
+.pt-fechas i{display:block;width:22mm;height:1.4mm;background:#F08A4B}
+.pt-pie{position:absolute;left:0;right:0;bottom:9mm;font-family:'DM Mono',monospace;font-size:7.5pt;letter-spacing:.18em;text-transform:uppercase;color:#F3E9D6}
+
+/* Texto de presentación */
+.intro{break-after:page;padding-top:3mm}
+.intro h1{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:40pt;line-height:.95;margin:0 0 6mm;color:var(--negro);border-bottom:.4mm solid var(--negro);padding-bottom:3mm}
+.intro h2{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:19pt;margin:7mm 0 2.5mm;color:var(--naranja-osc);break-after:avoid}
+.intro p{margin:0 0 3mm;text-align:justify;hyphens:auto}
+.intro h1 + blockquote + p::first-letter{float:left;font-family:'Bebas Neue',sans-serif;font-size:42pt;line-height:.8;padding:1.2mm 2mm 0 0;color:var(--naranja-osc)}
+.intro blockquote{margin:0 0 6mm;padding:0 0 0 5mm;border-left:1.2mm solid var(--naranja);font-style:italic;color:var(--gris)}
+.intro blockquote p{text-align:left;margin:0 0 1mm}
+.intro mark{background:#FFE7A8;color:inherit;padding:0 .6mm}
+
+/* Créditos e índice */
+.creditos{page-break-after:always;padding-top:120mm;font-size:8.5pt;color:var(--gris)}
+.creditos p{margin:0 0 3mm}
+.indice{page-break-after:always}
+.indice h2{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:32pt;margin:0 0 6mm;border-bottom:.3mm solid var(--negro)}
+.indice ol{list-style:none;margin:0;padding:0;columns:2;column-gap:8mm;font-size:7.6pt;line-height:1.35}
+.indice li{break-inside:avoid;margin:0 0 1.4mm}
+.indice a{color:var(--negro);display:flex;justify-content:space-between;align-items:baseline;gap:2mm}
+.indice a::after{content:attr(data-pag);flex:none;min-width:7mm;text-align:right;font-family:'DM Mono',monospace;color:var(--gris-medio)}
+.indice .toc-anio{font-family:'Bebas Neue',sans-serif;font-size:15pt;margin:4mm 0 1.5mm;break-after:avoid}
+.indice .toc-anio a{color:var(--naranja-osc)}
+
+/* Separador de año */
+.anio{page-break-before:always;page-break-after:always;height:190mm;display:flex;flex-direction:column;justify-content:center;align-items:flex-start;border-left:3mm solid var(--naranja);padding-left:8mm}
+.anio-num{font-family:'Bebas Neue',sans-serif;font-size:96pt;line-height:.85;color:var(--negro)}
+.anio-sub{font-family:'DM Mono',monospace;font-size:9pt;letter-spacing:.2em;text-transform:uppercase;color:var(--gris-medio);margin-top:3mm}
+
+/* Entradas */
+.entrada{page-break-before:always;padding-top:3mm}
+.entrada header{border-bottom:.3mm solid var(--negro);padding-bottom:3mm;margin-bottom:5mm}
+.fecha{font-family:'DM Mono',monospace;font-size:7.5pt;letter-spacing:.14em;text-transform:uppercase;color:var(--naranja-osc)}
+.entrada h2{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:28pt;line-height:.98;letter-spacing:.01em;margin:1.5mm 0 2.5mm}
+.chips{display:flex;flex-wrap:wrap;gap:1.2mm}
+.chip{font-family:'DM Mono',monospace;font-size:6.2pt;letter-spacing:.06em;text-transform:uppercase;color:var(--gris);border:.2mm solid var(--linea);padding:.4mm 1.4mm;border-radius:.5mm}
+.cuerpo{overflow-wrap:break-word}
+.cuerpo p{margin:0 0 2.6mm}
+.cuerpo img{display:block;max-width:100%;max-height:95mm;width:auto;height:auto;margin:3mm auto;break-inside:avoid}
+.cuerpo div,.cuerpo span,.cuerpo table{max-width:100%}
+.cuerpo table{border-collapse:collapse;margin:0 auto}
+.cuerpo td{padding:0}
+.cuerpo h1,.cuerpo h2,.cuerpo h3,.cuerpo h4{font-family:'Bebas Neue',sans-serif;font-weight:400;letter-spacing:.02em;line-height:1.05;margin:4mm 0 2mm;break-after:avoid}
+.cuerpo h1{font-size:18pt}.cuerpo h2{font-size:16pt}.cuerpo h3{font-size:14pt}.cuerpo h4{font-size:12pt}
+.cuerpo blockquote{margin:3mm 0;padding:2.5mm 4mm;background:var(--crema);font-style:italic}
+.cuerpo .tr-caption,.cuerpo .separator{font-size:7.5pt;text-align:center}
+.video{break-inside:avoid;margin:3mm 0;border:.3mm solid var(--negro);background:var(--crema)}
+.video img{margin:0;max-height:70mm;width:100%;object-fit:cover}
+.video-cap{margin:0!important;padding:1.6mm 2.5mm;font-family:'DM Mono',monospace;font-size:6.5pt;word-break:break-all;color:var(--gris)}
+.fuente{display:flex;gap:3mm;align-items:center;margin-top:5mm;padding-top:3mm;border-top:.2mm dashed var(--linea);font-family:'DM Mono',monospace;font-size:6.5pt;color:var(--gris-medio);word-break:break-all;break-inside:avoid}
+.fuente b{color:var(--negro);font-weight:500}
+.qr{width:16mm;height:16mm;flex:none}
+
+/* Bebas Neue solo tiene mayúsculas completas: forzar mayúsculas para que Ñ y acentos salgan bien */
+.intro h1,.intro h2,.entrada h2,.anio-num,.indice h2,.indice .toc-anio,.cuerpo h1,.cuerpo h2,.cuerpo h3,.cuerpo h4,.pt-etq-num b,.pt-etq-num i,.pt-anios,.pt-fechas{text-transform:uppercase}
+
+.cuerpo h1,.cuerpo h2,.cuerpo h3,.cuerpo h4{line-height:1.2;padding-top:1.5mm}
+.entrada h2,.intro h1,.intro h2{line-height:1.08;padding-top:1.5mm}
