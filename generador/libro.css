@@ -11,8 +11,9 @@ a{color:var(--naranja-osc);text-decoration:none;word-break:break-word}
   background:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.7' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .35 0 0 0 0 .25 0 0 0 0 .45 0 0 0 .55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E"),
   radial-gradient(ellipse at 50% 40%,rgba(255,255,255,0),rgba(40,20,60,.35) 85%)}
 .pt-top{position:relative;padding-top:15mm}
-.pt-libro{font-family:'Libre Baskerville',serif;font-size:15pt;color:#F3E9D6;letter-spacing:.02em}
-.pt-nombre{font-family:'Libre Baskerville',serif;font-weight:700;font-size:31pt;line-height:1.02;color:#F3E9D6;margin:1mm 10mm 0;letter-spacing:-.01em}
+.pt-libro{font-family:'DM Mono',monospace;font-size:10pt;letter-spacing:.32em;text-transform:uppercase;color:#F3E9D6}
+.pt-nombre{margin:2.5mm auto 0;width:138mm;line-height:0;font-size:0}
+.pt-nombre img{display:block;width:100%;height:auto;filter:drop-shadow(0 .6mm 1.2mm rgba(0,0,0,.6))}
 .pt-etiqueta{display:inline-block;margin-top:4mm;background:#D4521A;color:#FDFAF5;font-family:'DM Mono',monospace;font-size:8.5pt;letter-spacing:.16em;text-transform:uppercase;padding:2mm 4mm}
 .pt-claqueta{position:relative;margin:7mm 7mm 0;height:11mm;background:#3A2A1E;border-radius:.6mm;
   background-image:repeating-linear-gradient(-60deg,#3A2A1E 0 4mm,#E2A33A 4mm 8.2mm);background-size:110mm 7mm;background-position:center;background-repeat:no-repeat;box-shadow:inset 0 0 0 1.6mm #3A2A1E}

@@ -135,6 +135,7 @@ for k in falladas:
 
 css = open(os.path.join(HERE, 'libro.css'), encoding='utf-8').read()
 css = css.replace('__FONDO__', base64.b64encode(open(os.path.join(HERE, 'fondo_portada.jpg'), 'rb').read()).decode())
+titulo_logo = base64.b64encode(open(os.path.join(HERE, 'titulo_logo.png'), 'rb').read()).decode()
 samurai_l = base64.b64encode(open(os.path.join(HERE, 'boom.webp'), 'rb').read()).decode()
 samurai_r = base64.b64encode(open(os.path.join(HERE, 'cam.webp'), 'rb').read()).decode()
 n = len(posts)
@@ -149,7 +150,7 @@ doc = f"""<!doctype html><html lang='es'><head><meta charset='utf-8'><title>Libr
   <div class='pt-grano'></div>
   <div class='pt-top'>
     <div class='pt-libro'>Libro de</div>
-    <div class='pt-nombre'>Naranjas de Hiroshima</div>
+    <h1 class='pt-nombre'><img src='data:image/png;base64,{titulo_logo}' alt='Naranjas de Hiroshima'/></h1>
     <div class='pt-etiqueta'>Edición 20 aniversario{NUMTXT}</div>
   </div>
   <div class='pt-claqueta'></div>

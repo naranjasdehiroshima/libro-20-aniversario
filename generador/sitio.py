@@ -52,9 +52,13 @@ intro_html = markdown.markdown(intro)
 intro_html = re.sub(r'\[([^\]]+)\]', r'<mark>[\1]</mark>', intro_html)
 
 n = len(datos)
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import portada_web
+PT_CSS, PT_HTML, PT_JS = portada_web.construir(os.path.dirname(os.path.abspath(__file__)), OUT)
+PT_HTML = PT_HTML.replace('{N}', str(len(datos)))
 pdf_href = NOMBRE_PDF if en_repo else 'https://github.com/naranjasdehiroshima/libro-20-aniversario/releases/latest/download/' + NOMBRE_PDF
 tomos_html = ''.join(
-    f"<a class='tomo' href='{t['f']}' download><b>{t['y']}</b><span>{t['n']} {'entrada' if t['n'] == 1 else 'entradas'} · {t['pags']} págs.</span><i>PDF · {t['mb']} MB</i></a>"
+    f"<div class='tomo'><a class='tomo-leer' href='lector.html?t={t['y']}'><b>{t['y']}</b><span>{t['n']} {'entrada' if t['n'] == 1 else 'entradas'} · {t['pags']} págs.</span><i>Leer en línea →</i></a><a class='tomo-pdf' href='{t['f']}' download>PDF · {t['mb']} MB</a></div>"
     for t in tomos)
 
 page = f"""<!doctype html>
@@ -66,7 +70,7 @@ page = f"""<!doctype html>
 <meta property="og:image" content="portada.jpg">
 <meta name="theme-color" content="#1A1410">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Noto+Sans+JP:wght@900&family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
 <style>
 :root{{--naranja:#D4521A;--naranja-osc:#B2410F;--naranja-luz:#F08A4B;--negro:#1A1410;--negro-2:#2A221C;--gris:#3D342C;--gris-m:#5E5044;--linea:#D8CCBB;--crema:#F5F0E8;--crema-o:#EDE5D8;--blanco:#FDFAF5;--claro:#E8E0D5;--tenue:#C9BBA8}}
 *{{box-sizing:border-box}}body{{margin:0;background:var(--crema);color:var(--negro);font-family:'Libre Baskerville',Georgia,serif;font-size:17px;line-height:1.7}}
@@ -76,7 +80,7 @@ a{{color:var(--naranja-osc)}}a:hover{{color:var(--negro)}}
 .mono{{font-family:'DM Mono',monospace}}
 .hero{{background:var(--negro);color:var(--blanco)}}
 .hero .wrap{{display:flex;flex-wrap:wrap;gap:48px;align-items:center;padding-top:56px;padding-bottom:56px}}
-.hero img{{flex:0 1 380px;min-width:240px;width:100%;height:auto;border-radius:3px;box-shadow:0 24px 50px rgba(0,0,0,.6)}}
+.portada-col{{flex:0 1 380px;min-width:240px;width:100%}}
 .hero-txt{{flex:999 1 420px;min-width:0;display:flex;flex-direction:column;gap:18px}}
 .kicker{{font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--tenue)}}
 .hero h1{{margin:0;font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:clamp(48px,7vw,92px);line-height:.92;color:var(--naranja-luz);text-transform:uppercase}}
@@ -97,6 +101,8 @@ h2.sec{{margin:0 0 24px;font-family:'Bebas Neue',sans-serif;font-weight:400;font
 .intro blockquote{{margin:0 0 24px;padding:4px 0 4px 18px;border-left:4px solid var(--naranja);font-style:italic;color:var(--gris)}}
 .intro mark{{background:#FFE7A8;padding:0 3px}}
 .tomos{{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px}}
+.tomo-leer{{display:flex;flex-direction:column;gap:4px;text-decoration:none;color:var(--negro)}}.tomo-leer:hover b{{color:var(--naranja-osc)}}
+.tomo-pdf{{margin-top:8px;padding-top:8px;border-top:1px dotted var(--linea);font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--gris);text-decoration:none}}.tomo-pdf:hover{{color:var(--naranja-osc)}}
 .tomo{{display:flex;flex-direction:column;gap:4px;padding:16px;background:var(--blanco);border:1px solid var(--linea);border-top:4px solid var(--negro);border-radius:2px;text-decoration:none;color:var(--negro)}}
 .tomo:hover{{border-top-color:var(--naranja);color:var(--negro)}}
 .tomo b{{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:40px;line-height:1}}
@@ -117,9 +123,9 @@ h2.sec{{margin:0 0 24px;font-family:'Bebas Neue',sans-serif;font-weight:400;font
 @media(max-width:620px){{.lista li{{grid-template-columns:1fr auto}}.lista .f{{grid-column:1/-1}}}}
 footer{{background:var(--negro);color:var(--claro);padding:40px 0;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.06em}}
 footer a{{color:var(--naranja-luz)}}
-</style></head><body>
+{PT_CSS}</style></head><body>
 <header class="hero"><div class="wrap">
-  <img src="portada.jpg" alt="Portada del Libro de Naranjas de Hiroshima, edición 20 aniversario: dos samuráis, uno con una pértiga de sonido y otro con una cámara, en torno a una lata de película con el número 20, sobre tiras de película de 16mm" width="643" height="907">
+  <div class="portada-col">{PT_HTML}</div>
   <div class="hero-txt">
     <div class="kicker">Naranjas de Hiroshima · 2007 — 2027</div>
     <h1>Libro de Naranjas de Hiroshima<br>Edición 20 aniversario</h1>
@@ -131,7 +137,8 @@ footer a{{color:var(--naranja-luz)}}
       <div class="cifra"><b>20</b><span>años</span></div>
     </div>
     <div class="btns">
-      <a class="btn" href="{pdf_href}">Descargar el libro · PDF {pdf_mb} MB</a>
+      <a class="btn" href="lector.html?t={anios[0]}">Leer en línea</a>
+      <a class="btn sec" href="{pdf_href}">Descargar el libro · PDF {pdf_mb} MB</a>
       <a class="btn sec" href="#tomos">Por años</a>
       <a class="btn sec" href="https://www.naranjasdehiroshima.com/">Ir al blog</a>
     </div>
@@ -170,7 +177,7 @@ function enlacePagina(x) {{
   if (!x.p) return '';
   const y = x.d.slice(0,4), t = TOMOS[y];
   if (PDF_LOCAL) return `<a class="pg" href="${{PDF}}#page=${{x.p}}">pág. ${{x.p}}</a>`;
-  if (t) return `<a class="pg" href="${{t.f}}#page=${{x.p - t.ini + 2}}">pág. ${{x.p}}</a>`;
+  if (t) return `<a class="pg" href="lector.html?t=${{y}}#p${{x.p - t.ini + 2}}">pág. ${{x.p}}</a>`;
   return `<span class="pg">pág. ${{x.p}}</span>`;
 }}
 function pintar() {{
@@ -184,9 +191,15 @@ function pintar() {{
 }}
 document.getElementById('q').addEventListener('input', pintar);
 pintar();
+{PT_JS}
 </script>
 </body></html>"""
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(page)
+HERE = os.path.dirname(os.path.abspath(__file__))
+lector = open(os.path.join(HERE, 'lector.html'), encoding='utf-8').read()
+lector = lector.replace('__TOMOS__', json.dumps({t['y']: {'f': t['f'], 'n': t['n']} for t in tomos}, ensure_ascii=False)).replace('__PDF__', json.dumps(pdf_href))
+open(os.path.join(OUT, 'lector.html'), 'w', encoding='utf-8').write(lector)
+shutil.copytree(os.path.join(HERE, 'vendor'), os.path.join(OUT, 'vendor'), dirs_exist_ok=True)
 open(os.path.join(OUT, 'README.md'), 'w', encoding='utf-8').write(f"""# Libro de Naranjas de Hiroshima · Edición 20 aniversario
 
 Todas las entradas de [Naranjas de Hiroshima](https://www.naranjasdehiroshima.com/) (2007–2026) en un libro PDF de {total_pags:,} páginas, más un tomo por año.
