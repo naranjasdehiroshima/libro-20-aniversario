@@ -6,6 +6,7 @@ import markdown
 from pypdf import PdfReader, PdfWriter
 
 FEEDS, PDF, PORTADA, INTRO, OUT = sys.argv[1:6]
+XLSX = sys.argv[6] if len(sys.argv) > 6 else os.path.join(os.path.dirname(os.path.abspath(__file__)), 'catalogo.xlsx')
 os.makedirs(os.path.join(OUT, 'tomos'), exist_ok=True)
 NOMBRE_PDF = os.path.basename(PDF)
 r = PdfReader(PDF)
@@ -56,6 +57,9 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import portada_web
 PT_CSS, PT_HTML, PT_JS = portada_web.construir(os.path.dirname(os.path.abspath(__file__)), OUT)
 PT_HTML = PT_HTML.replace('{N}', str(len(datos)))
+import estadisticas
+EST = estadisticas.calcular(XLSX, FEEDS)
+EST_CSS, EST_HTML = estadisticas.seccion(EST)
 pdf_href = NOMBRE_PDF if en_repo else 'https://github.com/naranjasdehiroshima/libro-20-aniversario/releases/latest/download/' + NOMBRE_PDF
 tomos_html = ''.join(
     f"<div class='tomo'><a class='tomo-leer' href='lector.html?t={t['y']}'><b>{t['y']}</b><span>{t['n']} {'entrada' if t['n'] == 1 else 'entradas'} · {t['pags']} págs.</span><i>Leer en línea →</i></a><a class='tomo-pdf' href='{t['f']}' download>PDF · {t['mb']} MB</a></div>"
@@ -123,7 +127,7 @@ h2.sec{{margin:0 0 24px;font-family:'Bebas Neue',sans-serif;font-weight:400;font
 @media(max-width:620px){{.lista li{{grid-template-columns:1fr auto}}.lista .f{{grid-column:1/-1}}}}
 footer{{background:var(--negro);color:var(--claro);padding:40px 0;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.06em}}
 footer a{{color:var(--naranja-luz)}}
-{PT_CSS}</style></head><body>
+{PT_CSS}{EST_CSS}</style></head><body>
 <header class="hero"><div class="wrap">
   <div class="portada-col">{PT_HTML}</div>
   <div class="hero-txt">
@@ -131,10 +135,10 @@ footer a{{color:var(--naranja-luz)}}
     <h1>Libro de Naranjas de Hiroshima<br>Edición 20 aniversario</h1>
     <p>Veinte años de cine documental: todas las entradas del blog, de 2007 a hoy, en un solo libro para leer sin conexión, descargar y guardar.</p>
     <div class="cifras">
+      <div class="cifra"><b>{EST['documentales']}</b><span>documentales</span></div>
+      <div class="cifra"><b>{EST['horas']}</b><span>horas de cine</span></div>
       <div class="cifra"><b>{n}</b><span>entradas</span></div>
       <div class="cifra"><b>{total_pags:,}</b><span>páginas</span></div>
-      <div class="cifra"><b>{len(anios)}</b><span>años con publicaciones</span></div>
-      <div class="cifra"><b>20</b><span>años</span></div>
     </div>
     <div class="btns">
       <a class="btn" href="lector.html?t={anios[0]}">Leer en línea</a>
@@ -147,6 +151,7 @@ footer a{{color:var(--naranja-luz)}}
 <div class="perfs" aria-hidden="true"></div>
 <main>
 <section><div class="wrap"><h2 class="sec">Veinte años de Naranjas de Hiroshima</h2><div class="intro">{intro_html}</div></div></section>
+{EST_HTML}
 <section id="tomos" style="background:var(--crema-o)"><div class="wrap"><h2 class="sec">El libro por años</h2>
 <p style="margin-top:0;color:var(--gris)">Cada tomo incluye la portada y las entradas de ese año. Pesan poco y se abren en el navegador.</p>
 <div class="tomos">{tomos_html}</div></div></section>
