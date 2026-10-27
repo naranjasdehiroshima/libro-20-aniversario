@@ -39,6 +39,22 @@ select{background:var(--negro-2);color:var(--claro);border:1px solid #4a3f36;pad
 .barra{width:220px;height:3px;background:#3a302a}.barra i{display:block;height:100%;width:0;background:var(--naranja)}
 .mini{display:none;width:44px;min-height:40px;border:1px solid #4a3f36;background:transparent;color:var(--naranja-luz);font-size:20px;border-radius:2px;cursor:pointer}
 @media (max-width:700px){.escena{padding:10px 6px}.flecha{display:none}.mini{display:inline-block}.top{padding:8px 10px;gap:6px 8px}.top .marca{font-size:20px}.top label,#pantalla,#completo{display:none}.btn{padding:0 10px}.ayuda{display:none}#scrub{display:none}.pie{padding:8px 10px 12px}}
+
+/* Zoom */
+#zoom{position:fixed;inset:0;z-index:50;background:#0C0907;display:flex;flex-direction:column}
+#zoom[hidden]{display:none}
+.z-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:8px 10px;padding:10px 12px;background:var(--negro);border-bottom:3px solid var(--naranja)}
+.z-bar button{min-width:44px;min-height:44px;padding:0 12px;border:1px solid #4a3f36;background:transparent;color:var(--claro);font-family:'DM Mono',monospace;font-size:18px;border-radius:2px;cursor:pointer}
+.z-bar button:hover{border-color:var(--naranja-luz);color:var(--naranja-luz)}
+.z-bar button:disabled{opacity:.3;cursor:default}
+#z-cerrar{margin-left:auto;font-size:22px}
+.z-bar span{font-size:13px;color:var(--tenue);min-width:70px;text-align:center}
+.z-bar .z-sep{width:1px;min-width:0;height:28px;background:#4a3f36}
+.z-area{flex:1;overflow:auto;padding:18px;cursor:grab;touch-action:pan-x pan-y}
+.z-area.arrastra{cursor:grabbing}
+.z-area canvas{display:block;margin:0 auto;background:#FDFAF5;box-shadow:0 10px 40px rgba(0,0,0,.6)}
+.pg{cursor:zoom-in}
+@media (max-width:700px){.z-bar{gap:6px}.z-bar span{min-width:52px}#z-pct{display:none}}
 </style></head><body>
 <header class="top">
   <a class="marca" href="./">Naranjas de Hiroshima<small>Libro · 20 aniversario</small></a>
@@ -47,6 +63,7 @@ select{background:var(--negro-2);color:var(--claro);border:1px solid #4a3f36;pad
   <select id="anio" aria-label="Elegir año"></select>
   <a class="btn" id="descargar" href="#" download>Descargar tomo</a>
   <a class="btn" id="completo" href="#">Libro completo</a>
+  <button class="btn" id="ampliar" type="button">Ampliar</button>
   <button class="btn" id="pantalla" type="button">Pantalla completa</button>
   <a class="btn" href="./#indice">Índice</a>
 </header>
@@ -60,9 +77,24 @@ select{background:var(--negro-2);color:var(--claro);border:1px solid #4a3f36;pad
   <button class="mini" id="prev2" type="button" aria-label="Página anterior">‹</button>
   <label for="pg">Página</label><input id="pg" type="number" min="1" value="1"><span id="total">/ –</span>
   <button class="mini" id="next2" type="button" aria-label="Página siguiente">›</button>
+  <button class="mini" id="ampliar2" type="button" aria-label="Ampliar página" style="font-size:16px">⌕</button>
   <input id="scrub" type="range" min="1" value="1" aria-label="Ir a la página">
-  <div class="ayuda">Pasa las páginas arrastrando la esquina, con las flechas del teclado o con los botones. Las páginas se cargan a medida que avanzas.</div>
+  <div class="ayuda">Pasa las páginas arrastrando la esquina, con las flechas del teclado o con los botones. Doble clic en una página para ampliarla.</div>
 </footer>
+<div id="zoom" hidden role="dialog" aria-modal="true" aria-label="Página ampliada">
+  <div class="z-bar">
+    <button id="z-prev" type="button" aria-label="Página anterior">‹</button>
+    <span id="z-pag">–</span>
+    <button id="z-next" type="button" aria-label="Página siguiente">›</button>
+    <span class="z-sep" aria-hidden="true"></span>
+    <button id="z-menos" type="button" aria-label="Alejar">−</button>
+    <span id="z-pct">100%</span>
+    <button id="z-mas" type="button" aria-label="Acercar">+</button>
+    <button id="z-ajustar" type="button" style="font-size:11px;letter-spacing:.08em">AJUSTAR</button>
+    <button id="z-cerrar" type="button" aria-label="Cerrar">×</button>
+  </div>
+  <div class="z-area" id="z-area"><canvas id="z-canvas"></canvas></div>
+</div>
 <script src="vendor/page-flip.browser.js"></script>
 <script src="vendor/pdf.min.js"></script>
 <script>
@@ -138,7 +170,72 @@ tarea.promise.then(function (pdf) {
   }
   function ir(p) { p = Math.max(1, Math.min(N, p | 0)); flip.turnToPage(p - 1); sync(p - 1); }
   flip.on('flip', function (e) { sync(e.data); });
-  var rto; window.addEventListener('resize', function () { clearTimeout(rto); rto = setTimeout(function () { location.replace('lector.html?t=' + Y + '#p' + pg.value); location.reload(); }, 400); });
+
+  /* ---------- Zoom ---------- */
+  var zoom = document.getElementById('zoom'), zArea = document.getElementById('z-area'), zCanvas = document.getElementById('z-canvas');
+  var zPag = 0, zNivel = 1, zTarea = null, zTimer = null;
+  function zPintar() {
+    clearTimeout(zTimer);
+    zTimer = setTimeout(function () {
+      pdf.getPage(zPag + 1).then(function (page) {
+        var v1 = page.getViewport({ scale: 1 });
+        var base = Math.min((zArea.clientWidth - 36) / v1.width, (zArea.clientHeight - 36) / v1.height);
+        var cssAncho = v1.width * base * zNivel, dpr = window.devicePixelRatio || 1;
+        var esc = Math.min(cssAncho * dpr, 5000) / v1.width;
+        var vp = page.getViewport({ scale: esc });
+        if (zTarea) { try { zTarea.cancel(); } catch (e) {} }
+        var c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+        zTarea = page.render({ canvasContext: c.getContext('2d'), viewport: vp });
+        zTarea.promise.then(function () {
+          var cx = zArea.scrollLeft + zArea.clientWidth / 2, cy = zArea.scrollTop + zArea.clientHeight / 2;
+          var fx = zCanvas.clientWidth ? cx / zCanvas.clientWidth : .5, fy = zCanvas.clientHeight ? cy / zCanvas.clientHeight : 0;
+          zCanvas.width = c.width; zCanvas.height = c.height;
+          zCanvas.getContext('2d').drawImage(c, 0, 0);
+          zCanvas.style.width = Math.round(cssAncho) + 'px';
+          zCanvas.style.height = Math.round(cssAncho * v1.height / v1.width) + 'px';
+          zArea.scrollLeft = fx * zCanvas.clientWidth - zArea.clientWidth / 2;
+          zArea.scrollTop = fy * zCanvas.clientHeight - zArea.clientHeight / 2;
+        }).catch(function () {});
+      });
+    }, 60);
+    document.getElementById('z-pct').textContent = Math.round(zNivel * 100) + '%';
+    document.getElementById('z-pag').textContent = (zPag + 1) + ' / ' + N;
+    document.getElementById('z-prev').disabled = zPag <= 0;
+    document.getElementById('z-next').disabled = zPag >= N - 1;
+  }
+  function abrirZoom(i) { zPag = Math.max(0, Math.min(N - 1, i)); zNivel = 1; zoom.hidden = false; zArea.scrollTop = 0; zPintar(); document.getElementById('z-cerrar').focus(); }
+  function cerrarZoom() { zoom.hidden = true; if (zPag !== flip.getCurrentPageIndex()) { flip.turnToPage(zPag); sync(zPag); } }
+  function nivel(n) { zNivel = Math.max(.5, Math.min(5, Math.round(n * 100) / 100)); zPintar(); }
+  document.getElementById('ampliar').onclick = document.getElementById('ampliar2').onclick = function () { abrirZoom(flip.getCurrentPageIndex()); };
+  document.getElementById('z-cerrar').onclick = cerrarZoom;
+  document.getElementById('z-mas').onclick = function () { nivel(zNivel * 1.25); };
+  document.getElementById('z-menos').onclick = function () { nivel(zNivel / 1.25); };
+  document.getElementById('z-ajustar').onclick = function () { nivel(1); };
+  document.getElementById('z-prev').onclick = function () { zPag--; zArea.scrollTop = 0; zPintar(); };
+  document.getElementById('z-next').onclick = function () { zPag++; zArea.scrollTop = 0; zPintar(); };
+  Array.prototype.forEach.call(paginas, function (el, i) { el.addEventListener('dblclick', function () { abrirZoom(i); }); });
+  zArea.addEventListener('wheel', function (e) { if (e.ctrlKey || e.metaKey) { e.preventDefault(); nivel(zNivel * (e.deltaY < 0 ? 1.1 : 1 / 1.1)); } }, { passive: false });
+  zArea.addEventListener('dblclick', function () { nivel(zNivel < 1.9 ? 2 : 1); });
+  var arr = null;
+  zArea.addEventListener('pointerdown', function (e) { if (e.pointerType !== 'mouse') return; arr = { x: e.clientX, y: e.clientY, l: zArea.scrollLeft, t: zArea.scrollTop }; zArea.classList.add('arrastra'); });
+  addEventListener('pointermove', function (e) { if (!arr) return; zArea.scrollLeft = arr.l - (e.clientX - arr.x); zArea.scrollTop = arr.t - (e.clientY - arr.y); });
+  addEventListener('pointerup', function () { arr = null; zArea.classList.remove('arrastra'); });
+  var pinza = null;
+  zArea.addEventListener('touchstart', function (e) { if (e.touches.length === 2) pinza = { d: Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY), n: zNivel }; }, { passive: true });
+  zArea.addEventListener('touchmove', function (e) {
+    if (pinza && e.touches.length === 2) { e.preventDefault(); var d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); zNivel = Math.max(.5, Math.min(5, pinza.n * d / pinza.d)); zCanvas.style.width = (parseFloat(zCanvas.style.width) * d / (pinza.ultimo || pinza.d)) + 'px'; zCanvas.style.height = 'auto'; pinza.ultimo = d; document.getElementById('z-pct').textContent = Math.round(zNivel * 100) + '%'; }
+  }, { passive: false });
+  zArea.addEventListener('touchend', function () { if (pinza) { pinza = null; zPintar(); } });
+  document.addEventListener('keydown', function (e) {
+    if (zoom.hidden) return;
+    if (e.key === 'Escape') cerrarZoom();
+    else if (e.key === '+' || e.key === '=') nivel(zNivel * 1.25);
+    else if (e.key === '-') nivel(zNivel / 1.25);
+    else if (e.key === 'ArrowRight' && zPag < N - 1) { zPag++; zPintar(); }
+    else if (e.key === 'ArrowLeft' && zPag > 0) { zPag--; zPintar(); }
+    e.stopImmediatePropagation();
+  }, true);
+  var rto; window.addEventListener('resize', function () { if (!zoom.hidden) { zPintar(); return; } clearTimeout(rto); rto = setTimeout(function () { location.replace('lector.html?t=' + Y + '#p' + pg.value); location.reload(); }, 400); });
   prev.onclick = function () { flip.flipPrev(); };
   document.getElementById('prev2').onclick = function () { flip.flipPrev(); };
   document.getElementById('next2').onclick = function () { flip.flipNext(); };
