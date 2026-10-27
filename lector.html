@@ -1,0 +1,160 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Leer · Libro de Naranjas de Hiroshima</title>
+<meta name="theme-color" content="#1A1410">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=Libre+Baskerville:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{--naranja:#D4521A;--naranja-osc:#B2410F;--naranja-luz:#F08A4B;--negro:#1A1410;--negro-2:#2A221C;--gris:#3D342C;--claro:#E8E0D5;--tenue:#C9BBA8;--crema:#F5F0E8}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:#100C09 radial-gradient(ellipse at 50% 40%,#2A211B,#100C09 70%);color:var(--claro);font-family:'DM Mono',monospace;display:flex;flex-direction:column;height:100vh;height:100dvh;overflow:hidden}
+a{color:var(--naranja-luz)}
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding:12px 18px;background:var(--negro);border-bottom:3px solid var(--naranja)}
+.top .marca{font-family:'Bebas Neue',sans-serif;font-size:26px;line-height:1;color:var(--naranja-luz);text-decoration:none;letter-spacing:.02em;text-transform:uppercase}
+.top .marca small{display:block;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:.16em;color:var(--tenue)}
+.top label{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--tenue)}
+select,.btn,input{font-family:'DM Mono',monospace;font-size:13px;min-height:40px;border-radius:2px}
+select{background:var(--negro-2);color:var(--claro);border:1px solid #4a3f36;padding:0 10px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:0 14px;background:transparent;color:var(--claro);border:1px solid #4a3f36;cursor:pointer;text-decoration:none;letter-spacing:.08em;text-transform:uppercase;font-size:11px}
+.btn:hover{border-color:var(--naranja-luz);color:var(--naranja-luz)}
+.btn.prim{background:var(--naranja-osc);border-color:var(--naranja-osc);color:#FDFAF5}
+.btn.prim:hover{background:var(--naranja-luz);color:var(--negro)}
+.esp{flex:1}
+.escena{flex:1;display:flex;align-items:center;justify-content:center;padding:18px 70px;position:relative;min-height:0;overflow:hidden}
+#book{margin:0 auto;flex:none}
+.pg{background:#FDFAF5;overflow:hidden}
+.pg canvas{display:block;width:100%;height:100%}
+.pg .carga{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#A99887;font-size:12px;letter-spacing:.14em;text-transform:uppercase;background:#FDFAF5 repeating-linear-gradient(0deg,transparent 0 22px,#F1EBE1 22px 23px)}
+.flecha{position:absolute;top:50%;transform:translateY(-50%);width:48px;height:72px;border:0;border-radius:2px;background:rgba(26,20,16,.7);color:var(--naranja-luz);font-size:26px;cursor:pointer}
+.flecha:hover{background:var(--naranja-osc);color:#fff}.flecha:disabled{opacity:.25;cursor:default}
+.flecha.izq{left:10px}.flecha.der{right:10px}
+.pie{display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:10px 14px;padding:12px 18px 16px;background:var(--negro);border-top:1px solid #3a302a}
+.pie input[type=number]{width:74px;background:var(--negro-2);color:var(--claro);border:1px solid #4a3f36;text-align:center}
+#total{font-size:13px;color:var(--tenue)}
+#scrub{flex:1;max-width:520px;accent-color:var(--naranja)}
+.ayuda{width:100%;text-align:center;font-size:11px;color:#8d7e6f;letter-spacing:.04em}
+#estado{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--tenue);pointer-events:none}
+#estado b{font-family:'Bebas Neue',sans-serif;font-size:56px;letter-spacing:.02em;color:var(--naranja-luz);font-weight:400}
+.barra{width:220px;height:3px;background:#3a302a}.barra i{display:block;height:100%;width:0;background:var(--naranja)}
+.mini{display:none;width:44px;min-height:40px;border:1px solid #4a3f36;background:transparent;color:var(--naranja-luz);font-size:20px;border-radius:2px;cursor:pointer}
+@media (max-width:700px){.escena{padding:10px 6px}.flecha{display:none}.mini{display:inline-block}.top{padding:8px 10px;gap:6px 8px}.top .marca{font-size:20px}.top label,#pantalla,#completo{display:none}.btn{padding:0 10px}.ayuda{display:none}#scrub{display:none}.pie{padding:8px 10px 12px}}
+</style></head><body>
+<header class="top">
+  <a class="marca" href="./">Naranjas de Hiroshima<small>Libro · 20 aniversario</small></a>
+  <span class="esp"></span>
+  <label for="anio">Tomo</label>
+  <select id="anio" aria-label="Elegir año"></select>
+  <a class="btn" id="descargar" href="#" download>Descargar tomo</a>
+  <a class="btn" id="completo" href="#">Libro completo</a>
+  <button class="btn" id="pantalla" type="button">Pantalla completa</button>
+  <a class="btn" href="./#indice">Índice</a>
+</header>
+<main class="escena">
+  <div id="estado"><b id="estado-anio"></b><span id="estado-txt">Abriendo el tomo…</span><span class="barra"><i id="barra"></i></span></div>
+  <button class="flecha izq" id="prev" type="button" aria-label="Página anterior">‹</button>
+  <div id="book"></div>
+  <button class="flecha der" id="next" type="button" aria-label="Página siguiente">›</button>
+</main>
+<footer class="pie">
+  <button class="mini" id="prev2" type="button" aria-label="Página anterior">‹</button>
+  <label for="pg">Página</label><input id="pg" type="number" min="1" value="1"><span id="total">/ –</span>
+  <button class="mini" id="next2" type="button" aria-label="Página siguiente">›</button>
+  <input id="scrub" type="range" min="1" value="1" aria-label="Ir a la página">
+  <div class="ayuda">Pasa las páginas arrastrando la esquina, con las flechas del teclado o con los botones. Las páginas se cargan a medida que avanzas.</div>
+</footer>
+<script src="vendor/page-flip.browser.js"></script>
+<script src="vendor/pdf.min.js"></script>
+<script>
+var TOMOS = {"2007": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2007.pdf", "n": 148}, "2008": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2008.pdf", "n": 60}, "2009": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2009.pdf", "n": 71}, "2010": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2010.pdf", "n": 72}, "2011": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2011.pdf", "n": 50}, "2012": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2012.pdf", "n": 48}, "2013": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2013.pdf", "n": 46}, "2014": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2014.pdf", "n": 29}, "2015": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2015.pdf", "n": 16}, "2016": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2016.pdf", "n": 19}, "2017": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2017.pdf", "n": 36}, "2018": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2018.pdf", "n": 24}, "2019": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2019.pdf", "n": 23}, "2020": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2020.pdf", "n": 26}, "2021": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2021.pdf", "n": 8}, "2022": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2022.pdf", "n": 7}, "2023": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2023.pdf", "n": 3}, "2024": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2024.pdf", "n": 6}, "2025": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2025.pdf", "n": 3}, "2026": {"f": "tomos/Libro-Naranjas-de-Hiroshima-2026.pdf", "n": 5}}, PDF_COMPLETO = "https://github.com/naranjasdehiroshima/libro-20-aniversario/releases/latest/download/Libro-Naranjas-de-Hiroshima-20-aniversario-2007-2026.pdf";
+pdfjsLib.GlobalWorkerOptions.workerSrc = 'vendor/pdf.worker.min.js';
+var anios = Object.keys(TOMOS);
+var qs = new URLSearchParams(location.search), Y = qs.get('t');
+if (!TOMOS[Y]) Y = anios[0];
+var T = TOMOS[Y];
+var sel = document.getElementById('anio');
+anios.forEach(function (y) { var o = document.createElement('option'); o.value = y; o.textContent = y + ' · ' + TOMOS[y].n + ' entradas'; if (y === Y) o.selected = true; sel.appendChild(o); });
+sel.onchange = function () { location.href = 'lector.html?t=' + sel.value; };
+document.getElementById('descargar').href = T.f;
+document.getElementById('completo').href = PDF_COMPLETO;
+document.getElementById('estado-anio').textContent = Y;
+document.title = Y + ' · Libro de Naranjas de Hiroshima';
+var pantalla = document.getElementById('pantalla');
+pantalla.onclick = function () { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen && document.documentElement.requestFullscreen(); };
+
+var tarea = pdfjsLib.getDocument({ url: T.f, disableAutoFetch: true, disableStream: false });
+tarea.onProgress = function (p) { if (p.total) document.getElementById('barra').style.width = Math.round(100 * p.loaded / p.total) + '%'; };
+tarea.promise.then(function (pdf) {
+  var N = pdf.numPages, book = document.getElementById('book');
+  for (var i = 0; i < N; i++) {
+    var d = document.createElement('div'); d.className = 'pg'; if (i === 0 || i === N - 1) d.setAttribute('data-density', 'hard');
+    d.innerHTML = '<div class="carga">Página ' + (i + 1) + '</div>'; book.appendChild(d);
+  }
+  var paginas = book.querySelectorAll('.pg');
+  var escena = document.querySelector('.escena'), RATIO = 170 / 240;
+  var cs = getComputedStyle(escena);
+  var altoDisp = escena.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+  var anchoDisp = escena.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+  var dos = anchoDisp > 760;
+  var anchoPag = Math.floor(Math.min(altoDisp * RATIO, dos ? anchoDisp / 2 : anchoDisp));
+  var altoPag = Math.floor(anchoPag / RATIO);
+  book.style.width = (dos ? anchoPag * 2 : anchoPag) + 'px';
+  book.style.height = altoPag + 'px';
+  var flip = new St.PageFlip(book, {
+    width: anchoPag, height: altoPag, size: 'fixed', minWidth: 200, maxWidth: anchoPag, minHeight: 280, maxHeight: altoPag,
+    showCover: true, usePortrait: true, disableFlipByClick: true, maxShadowOpacity: 0.45, mobileScrollSupport: false,
+    flippingTime: matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 700
+  });
+  flip.loadFromHTML(paginas);
+  document.getElementById('estado').style.display = 'none';
+  var hechas = {}, enCurso = {};
+  function pintar(i) {
+    if (i < 0 || i >= N || hechas[i] || enCurso[i]) return;
+    enCurso[i] = true;
+    pdf.getPage(i + 1).then(function (page) {
+      var cont = paginas[i], ancho = Math.max(cont.clientWidth, 400);
+      var v1 = page.getViewport({ scale: 1 }), escala = Math.min(2.4, ancho * (window.devicePixelRatio || 1) / v1.width);
+      var vp = page.getViewport({ scale: escala });
+      var c = document.createElement('canvas'); c.width = vp.width; c.height = vp.height;
+      return page.render({ canvasContext: c.getContext('2d'), viewport: vp }).promise.then(function () {
+        cont.innerHTML = ''; cont.appendChild(c); hechas[i] = true; delete enCurso[i];
+      });
+    }).catch(function () { delete enCurso[i]; });
+  }
+  function liberar(cur) {
+    Object.keys(hechas).forEach(function (k) {
+      k = +k; if (Math.abs(k - cur) > 14) { paginas[k].innerHTML = '<div class="carga">Página ' + (k + 1) + '</div>'; delete hechas[k]; }
+    });
+  }
+  var pg = document.getElementById('pg'), scrub = document.getElementById('scrub');
+  var prev = document.getElementById('prev'), next = document.getElementById('next');
+  pg.max = N; scrub.max = N; document.getElementById('total').textContent = '/ ' + N;
+  function sync(i) {
+    pg.value = i + 1; scrub.value = i + 1;
+    prev.disabled = i <= 0; next.disabled = i >= N - 1;
+    for (var k = i - 2; k <= i + 4; k++) pintar(k);
+    liberar(i);
+    try { history.replaceState(null, '', '?t=' + Y + '#p' + (i + 1)); } catch (e) {}
+  }
+  function ir(p) { p = Math.max(1, Math.min(N, p | 0)); flip.turnToPage(p - 1); sync(p - 1); }
+  flip.on('flip', function (e) { sync(e.data); });
+  var rto; window.addEventListener('resize', function () { clearTimeout(rto); rto = setTimeout(function () { location.replace('lector.html?t=' + Y + '#p' + pg.value); location.reload(); }, 400); });
+  prev.onclick = function () { flip.flipPrev(); };
+  document.getElementById('prev2').onclick = function () { flip.flipPrev(); };
+  document.getElementById('next2').onclick = function () { flip.flipNext(); };
+  next.onclick = function () { flip.flipNext(); };
+  pg.onchange = function () { ir(+pg.value); };
+  scrub.oninput = function () { pg.value = scrub.value; };
+  scrub.onchange = function () { ir(+scrub.value); };
+  document.addEventListener('keydown', function (e) {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+    if (e.key === 'ArrowRight') flip.flipNext(); else if (e.key === 'ArrowLeft') flip.flipPrev();
+  });
+  var m = /#p(\d+)/.exec(location.hash);
+  if (m) ir(+m[1]); else sync(0);
+}).catch(function () {
+  document.getElementById('estado-txt').innerHTML = 'No se pudo abrir el tomo. <a href="' + T.f + '">Descárgalo en PDF</a>.';
+  document.getElementById('estado').style.pointerEvents = 'auto';
+});
+</script>
+</body></html>
