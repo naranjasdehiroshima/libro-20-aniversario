@@ -9,7 +9,7 @@ Para el próximo aniversario:
    done
    ```
 2. `pip install beautifulsoup4 lxml pillow qrcode markdown pypdf openpyxl playwright` y `playwright install chromium`
-3. Libro: `python3 libro.py feeds 2007 2027 "" salida`
+3. Libro: `python3 libro.py feeds 2007 2027 "" salida`. La segunda parte (los dossiers) se toma de la carpeta `dossier` con sus páginas generadas (`dossier/salida/*.html` y `dossier-guerra-civil-blogger.html` al lado); si está en otro sitio, indícalo con `NDH_DOSSIERS=/ruta/a/dossier`. El tomo «Dossiers» se crea solo.
 4. Web, tomos, lector, portada animada y cifras: `python3 sitio.py feeds salida/Libro-*.pdf salida/portada.jpg intro.md web catalogo.xlsx`
 
 El texto de presentación está en `intro.md` (lo que va entre [corchetes] sale resaltado). Las cifras salen de `catalogo.xlsx` y del feed; los más vistos se leen del blog al generar.

@@ -105,7 +105,7 @@ var qs = new URLSearchParams(location.search), Y = qs.get('t');
 if (!TOMOS[Y]) Y = anios[0];
 var T = TOMOS[Y];
 var sel = document.getElementById('anio');
-anios.forEach(function (y) { var o = document.createElement('option'); o.value = y; o.textContent = y + ' · ' + TOMOS[y].n + ' entradas'; if (y === Y) o.selected = true; sel.appendChild(o); });
+anios.forEach(function (y) { var o = document.createElement('option'); o.value = y; o.textContent = y + ' · ' + TOMOS[y].n + ' ' + (TOMOS[y].et || 'entradas'); if (y === Y) o.selected = true; sel.appendChild(o); });
 sel.onchange = function () { location.href = 'lector.html?t=' + sel.value; };
 document.getElementById('descargar').href = T.f;
 document.getElementById('completo').href = PDF_COMPLETO;

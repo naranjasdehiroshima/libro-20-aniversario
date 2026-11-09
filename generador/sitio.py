@@ -32,7 +32,7 @@ tomos = []
 for i, y in enumerate(anios):
     ini = dest.get('a' + y)
     if not ini: continue
-    fin = (dest.get('a' + anios[i + 1]) - 1) if i + 1 < len(anios) and dest.get('a' + anios[i + 1]) else total_pags
+    fin = (dest.get('a' + anios[i + 1]) - 1) if i + 1 < len(anios) and dest.get('a' + anios[i + 1]) else ((dest['dossiers'] - 1) if dest.get('dossiers') else total_pags)
     w = PdfWriter()
     w.add_page(r.pages[0])
     for p in range(ini - 1, fin): w.add_page(r.pages[p])
@@ -40,6 +40,18 @@ for i, y in enumerate(anios):
     nombre = f'Libro-Naranjas-de-Hiroshima-{y}.pdf'
     with open(os.path.join(OUT, 'tomos', nombre), 'wb') as fh: w.write(fh)
     tomos.append({'y': y, 'n': sum(1 for x in datos if x['d'][:4] == y), 'pags': fin - ini + 1, 'ini': ini,
+                  'mb': round(os.path.getsize(os.path.join(OUT, 'tomos', nombre)) / 1e6, 1), 'f': 'tomos/' + nombre})
+
+# segunda parte: los dossiers, en su propio tomo
+if dest.get('dossiers'):
+    ini, fin = dest['dossiers'], total_pags
+    w = PdfWriter(); w.add_page(r.pages[0])
+    for p in range(ini - 1, fin): w.add_page(r.pages[p])
+    w.add_metadata({'/Title': 'Libro de Naranjas de Hiroshima · Dossiers temáticos'})
+    nombre = 'Libro-Naranjas-de-Hiroshima-Dossiers.pdf'
+    with open(os.path.join(OUT, 'tomos', nombre), 'wb') as fh: w.write(fh)
+    nd = sum(1 for k in dest if re.fullmatch(r'dossier-\d+-p', k))
+    tomos.append({'y': 'Dossiers', 'n': nd, 'et': 'dossiers', 'pags': fin - ini + 1, 'ini': ini,
                   'mb': round(os.path.getsize(os.path.join(OUT, 'tomos', nombre)) / 1e6, 1), 'f': 'tomos/' + nombre})
 
 shutil.copy(PORTADA, os.path.join(OUT, 'portada.jpg'))
@@ -62,7 +74,7 @@ EST = estadisticas.calcular(XLSX, FEEDS)
 EST_CSS, EST_HTML = estadisticas.seccion(EST)
 pdf_href = NOMBRE_PDF if en_repo else 'https://github.com/naranjasdehiroshima/libro-20-aniversario/releases/latest/download/' + NOMBRE_PDF
 tomos_html = ''.join(
-    f"<div class='tomo'><a class='tomo-leer' href='lector.html?t={t['y']}'><b>{t['y']}</b><span>{t['n']} {'entrada' if t['n'] == 1 else 'entradas'} · {t['pags']} págs.</span><i>Leer en línea →</i></a><a class='tomo-pdf' href='{t['f']}' download>PDF · {t['mb']} MB</a></div>"
+    f"<div class='tomo'><a class='tomo-leer' href='lector.html?t={t['y']}'><b>{t['y']}</b><span>{t['n']} {t.get('et') or ('entrada' if t['n'] == 1 else 'entradas')} · {t['pags']} págs.</span><i>Leer en línea →</i></a><a class='tomo-pdf' href='{t['f']}' download>PDF · {t['mb']} MB</a></div>"
     for t in tomos)
 
 page = f"""<!doctype html>
@@ -202,12 +214,12 @@ pintar();
 open(os.path.join(OUT, 'index.html'), 'w', encoding='utf-8').write(page)
 HERE = os.path.dirname(os.path.abspath(__file__))
 lector = open(os.path.join(HERE, 'lector.html'), encoding='utf-8').read()
-lector = lector.replace('__TOMOS__', json.dumps({t['y']: {'f': t['f'], 'n': t['n']} for t in tomos}, ensure_ascii=False)).replace('__PDF__', json.dumps(pdf_href))
+lector = lector.replace('__TOMOS__', json.dumps({t['y']: {'f': t['f'], 'n': t['n'], 'et': t.get('et', 'entradas')} for t in tomos}, ensure_ascii=False)).replace('__PDF__', json.dumps(pdf_href))
 open(os.path.join(OUT, 'lector.html'), 'w', encoding='utf-8').write(lector)
 shutil.copytree(os.path.join(HERE, 'vendor'), os.path.join(OUT, 'vendor'), dirs_exist_ok=True)
 open(os.path.join(OUT, 'README.md'), 'w', encoding='utf-8').write(f"""# Libro de Naranjas de Hiroshima · Edición 20 aniversario
 
-Todas las entradas de [Naranjas de Hiroshima](https://www.naranjasdehiroshima.com/) (2007–2026) en un libro PDF de {total_pags:,} páginas, más un tomo por año.
+Todas las entradas de [Naranjas de Hiroshima](https://www.naranjasdehiroshima.com/) (2007–2026) en un libro PDF de {total_pags:,} páginas, más un tomo por año y otro con los dossiers temáticos.
 
 Web: https://naranjasdehiroshima.github.io/libro-20-aniversario/
 

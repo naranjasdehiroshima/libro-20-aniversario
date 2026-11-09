@@ -124,16 +124,37 @@ for y in years:
 <footer class='fuente'><img class='qr' src='{qr(p['u'])}' alt=''/><div><b>Entrada original</b><br/>{H.escape(p['u'])}</div></footer>
 </article>""")
 
+# ---------- segunda parte: los dossiers temáticos ----------
+import libro_dossiers as LD
+en_libro = {LD.norm_url(p['u']): 'e' + hashlib.md5(p['u'].encode()).hexdigest()[:8] for p in posts}
+MINI = set()
+def local_mini(u):
+    r = local(u); MINI.add(r[4:-4]); return 'img/m_' + r[4:]
+dz_css, dz_html, dz_toc = LD.construir(local_mini, en_libro)
+body.append(dz_html)
+toc.append("<li class='toc-anio'><a data-pag='000' href='#dossiers'>Dossiers</a></li>")
+for dn, dt in dz_toc:
+    toc.append(f"<li><a data-pag='000' href='#dossier-{dn}-p'><span>{dn}. {H.escape(dt)}</span></a></li>")
+print('dossiers', len(dz_toc))
+
 with ThreadPoolExecutor(16) as ex:
     res = list(ex.map(fetch, jobs.items()))
 print('imágenes', sum(res), 'de', len(res))
+# miniaturas de los carteles de los dossiers: más ligeras para el navegador
+for k in MINI:
+    o, m = os.path.join(OUT, 'img', k + '.jpg'), os.path.join(OUT, 'img', 'm_' + k + '.jpg')
+    if os.path.exists(o) and not os.path.exists(m):
+        try:
+            im = Image.open(o); im.thumbnail((260, 360)); im.save(m, 'JPEG', quality=80)
+        except Exception: pass
 # imágenes fallidas: quitarlas
 falladas = {k for (u, k), ok in zip(jobs.items(), res) if not ok}
 html_body = '\n'.join(body)
 for k in falladas:
     html_body = re.sub(rf"<img[^>]*src=\"img/{k}\.jpg\"[^>]*/?>", '', html_body)
+    html_body = re.sub(rf"<img[^>]*src=\"img/m_{k}\.jpg\"[^>]*/?>", '', html_body)
 
-css = open(os.path.join(HERE, 'libro.css'), encoding='utf-8').read()
+css = open(os.path.join(HERE, 'libro.css'), encoding='utf-8').read() + dz_css
 css = css.replace('__FONDO__', base64.b64encode(open(os.path.join(HERE, 'fondo_portada.jpg'), 'rb').read()).decode())
 titulo_logo = base64.b64encode(open(os.path.join(HERE, 'titulo_logo.png'), 'rb').read()).decode()
 samurai_l = base64.b64encode(open(os.path.join(HERE, 'boom.webp'), 'rb').read()).decode()
@@ -191,9 +212,9 @@ OPTS = dict(width='170mm', height='240mm', print_background=True, display_header
 async def pdf():
     from playwright.async_api import async_playwright
     async with async_playwright() as p:
-        b = await p.chromium.launch()
+        b = await p.chromium.launch(args=['--disable-dev-shm-usage', '--js-flags=--max-old-space-size=8192'])
         pg = await b.new_page()
-        await pg.goto('file://' + os.path.abspath(os.path.join(OUT, 'libro.html')), wait_until='networkidle', timeout=600000)
+        await pg.goto('file://' + os.path.abspath(os.path.join(OUT, 'libro.html')), wait_until='load', timeout=600000); await pg.wait_for_timeout(8000)
         await pg.add_style_tag(content='.portada{height:200mm!important;margin:0!important;visibility:hidden;background:none!important}')
         await pg.evaluate("document.querySelector('.portada').innerHTML = ''")
         final = os.path.join(OUT, f'Libro-Naranjas-de-Hiroshima-20-aniversario-{Y0}-{Y1}.pdf')
@@ -201,22 +222,15 @@ async def pdf():
             await pg.pdf(path=final, **OPTS)
             if paso == 1:
                 from pypdf import PdfReader
-                r = PdfReader(final); pags = {}
-                # cada enlace del índice apunta a la página de destino
-                for i, page in enumerate(r.pages[:80]):
-                    for an in (page.get('/Annots') or []):
-                        a = an.get_object()
-                        dest = a.get('/Dest') or (a.get('/A') or {}).get('/D')
-                        if dest is None: continue
-                        if isinstance(dest, str) or hasattr(dest, 'decode'):
-                            d = r.named_destinations.get(str(dest))
-                            if d is None: continue
-                            num = r.get_destination_page_number(d)
-                            pags[str(dest).lstrip('/')] = num + 1
-                await pg.evaluate('''(p) => document.querySelectorAll('.indice a').forEach(a => { const k = decodeURIComponent(a.getAttribute('href').slice(1)); if (p[k]) a.setAttribute('data-pag', p[k]); })''', pags)
+                r = PdfReader(final)
+                # cada enlace interno (índice y referencias de los dossiers) muestra la página de destino
+                pags = {str(k).lstrip('/'): r.get_destination_page_number(v) + 1 for k, v in r.named_destinations.items()}
+                await pg.evaluate('''(p) => document.querySelectorAll('.indice a, a.ref').forEach(a => { const k = decodeURIComponent(a.getAttribute('href').slice(1)); if (p[k]) a.setAttribute('data-pag', p[k]); })''', pags)
                 print('índice', len(pags), 'destinos')
         # portada sin márgenes ni pie, unida delante
+        await pg.close()
         cap = await b.new_page(viewport={'width': 643, 'height': 907}, device_scale_factor=3.125)
+        await cap.route('**/img/**', lambda r: r.abort())
         await cap.goto('file://' + os.path.abspath(os.path.join(OUT, 'libro.html')), wait_until='networkidle', timeout=600000)
         await cap.evaluate("document.querySelectorAll('body > :not(.portada)').forEach(e => e.remove()); document.querySelector('.portada').style.margin = '0'")
         await cap.wait_for_timeout(800)
