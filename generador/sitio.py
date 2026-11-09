@@ -77,6 +77,24 @@ tomos_html = ''.join(
     f"<div class='tomo'><a class='tomo-leer' href='lector.html?t={t['y']}'><b>{t['y']}</b><span>{t['n']} {t.get('et') or ('entrada' if t['n'] == 1 else 'entradas')} · {t['pags']} págs.</span><i>Leer en línea →</i></a><a class='tomo-pdf' href='{t['f']}' download>PDF · {t['mb']} MB</a></div>"
     for t in tomos)
 
+# sección propia para la segunda parte: los dossiers
+dz_html = ''
+tdz = next((t for t in tomos if t['y'] == 'Dossiers'), None)
+if tdz:
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import libro_dossiers as LD
+    tarjetas = ''
+    for num, tit, sub, _, _ in LD.lista():
+        pg = dest.get(f'dossier-{num}-p')
+        if not pg: continue
+        sub = sub if num != 1 else 'La guerra, la revolución y el exilio en el archivo de Naranjas de Hiroshima'
+        tarjetas += (f"<a class='dz-card' href='lector.html?t=Dossiers#p{pg - tdz['ini'] + 2}'><span class='dz-n'>{num}</span>"
+                     f"<b>{H.escape(tit)}</b><span class='dz-s'>{H.escape(sub)}</span><i>Pág. {pg} · Leer →</i></a>")
+    dz_html = (f"<section id='dossiers'><div class='wrap'><h2 class='sec'>Segunda parte · Dossiers</h2>"
+               f"<p style='margin-top:0;color:var(--gris);max-width:70ch'>Los {tdz['n']} dossiers temáticos de la web, completos y maquetados para el libro: cada título remite a la página de su entrada y cada línea del tiempo está numerada con sus fichas. "
+               f"<a href='{tdz['f']}' download>Descargar solo los dossiers · PDF {tdz['mb']} MB</a></p>"
+               f"<div class='dz-grid'>{tarjetas}</div></div></section>")
+
 page = f"""<!doctype html>
 <html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Libro de Naranjas de Hiroshima · 20 aniversario</title>
@@ -137,6 +155,14 @@ h2.sec{{margin:0 0 24px;font-family:'Bebas Neue',sans-serif;font-weight:400;font
 .lista .et{{display:block;font-family:'DM Mono',monospace;font-size:11px;color:var(--gris-m);margin-top:2px}}
 .lista .pg{{font-family:'DM Mono',monospace;font-size:12px;white-space:nowrap}}
 @media(max-width:620px){{.lista li{{grid-template-columns:1fr auto}}.lista .f{{grid-column:1/-1}}}}
+#dossiers{{padding:64px 0}}.dz-grid{{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}}
+.dz-card{{position:relative;display:flex;flex-direction:column;gap:6px;padding:16px 16px 14px 18px;background:var(--blanco);border:1px solid var(--linea);border-left:5px solid var(--naranja);border-radius:2px;text-decoration:none;color:var(--negro);transition:transform .15s,border-color .15s}}
+.dz-card:hover{{transform:translateY(-2px);border-color:var(--naranja)}}.dz-card:focus-visible{{outline:2px solid var(--naranja-osc);outline-offset:2px}}
+.dz-n{{font-family:'Bebas Neue',sans-serif;font-size:44px;line-height:.85;color:var(--naranja)}}
+.dz-card b{{font-family:'Bebas Neue',sans-serif;font-weight:400;font-size:23px;line-height:1.05;text-transform:uppercase}}
+.dz-s{{font-size:13.5px;line-height:1.5;color:var(--gris);font-style:italic}}
+.dz-card i{{font-style:normal;margin-top:auto;padding-top:6px;font-family:'DM Mono',monospace;font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--naranja-osc)}}
+@media(prefers-reduced-motion:reduce){{.dz-card{{transition:none}}.dz-card:hover{{transform:none}}}}
 footer{{background:var(--negro);color:var(--claro);padding:40px 0;font-family:'DM Mono',monospace;font-size:12px;letter-spacing:.06em}}
 footer a{{color:var(--naranja-luz)}}
 {PT_CSS}{EST_CSS}</style></head><body>
@@ -156,6 +182,7 @@ footer a{{color:var(--naranja-luz)}}
       <a class="btn" href="lector.html?t={anios[0]}">Leer en línea</a>
       <a class="btn sec" href="{pdf_href}">Descargar el libro · PDF {pdf_mb} MB</a>
       <a class="btn sec" href="#tomos">Por años</a>
+      <a class="btn sec" href="#dossiers">Dossiers</a>
       <a class="btn sec" href="https://www.naranjasdehiroshima.com/">Ir al blog</a>
     </div>
   </div>
@@ -167,6 +194,7 @@ footer a{{color:var(--naranja-luz)}}
 <section id="tomos" style="background:var(--crema-o)"><div class="wrap"><h2 class="sec">El libro por años</h2>
 <p style="margin-top:0;color:var(--gris)">Cada tomo incluye la portada y las entradas de ese año. Pesan poco y se abren en el navegador.</p>
 <div class="tomos">{tomos_html}</div></div></section>
+{dz_html}
 <section id="indice"><div class="wrap"><h2 class="sec">Índice</h2>
 <div class="buscar"><label for="q">Buscar</label><input id="q" type="search" placeholder="título, director, país, tema…" autocomplete="off"></div>
 <div class="anios" role="group" aria-label="Filtrar por año"></div>
